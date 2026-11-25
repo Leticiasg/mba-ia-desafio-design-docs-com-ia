@@ -433,6 +433,8 @@ O corpo é gravado pronto na outbox, como retrato do pedido no momento da mudan�
 
 ## Matriz de erros
 
+A reunião citou três códigos: `WEBHOOK_NOT_FOUND`, `WEBHOOK_INVALID_URL` e `WEBHOOK_SECRET_REQUIRED` ([09:28] Bruno). Os demais códigos `WEBHOOK_*` desta seção são nomes propostos por este FDD para comportamentos que a reunião decidiu, seguindo o prefixo combinado ([09:29] Larissa).
+
 Erros da API, todos como subclasses de `AppError` (`src/shared/errors/app-error.ts`), no formato do `errorMiddleware`:
 
 | Código | HTTP | Classe proposta | Quando acontece | Fonte |

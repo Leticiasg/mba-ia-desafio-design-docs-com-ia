@@ -152,3 +152,35 @@ Ajustes na revisão:
 Verificação por script: 12 seções; 14 RFs; 10 RNFs; 8 itens fora de escopo; 5 riscos com probabilidade e impacto; todos os timestamps existem; links funcionam.
 
 Ajuste pedido por mim no PRD: a tabela de riscos tinha uma coluna "Justificativa" que explicava só a probabilidade. Troquei por "Motivo da nota", que explica separadamente a probabilidade e o impacto de cada risco, sempre a partir de uma fala da reunião.
+
+## E7 — Tracker
+
+Montei o tracker no fim, varrendo os documentos prontos, com IDs no padrão do enunciado (`PRD-FR-01`, `RFC-ALT-02`, `FDD-CONTRATO-03`, `ADR-002`). O critério de "item identificável" ficou escrito no próprio tracker, por categoria de cada documento. Itens que os documentos propõem sem a reunião ter decidido (path de rotação, nomes de tabela, um código de erro) ficaram com Tipo "Proposta" e apontam para a fala que os motivou.
+
+Para não contar à mão, escrevi `work/validar-tracker.sh`. Ele confere formato, IDs, existência de cada fala na transcrição e de cada caminho no repositório, e compara a quantidade de itens de cada categoria nos documentos com as linhas do tracker.
+
+Prompt usado:
+
+```text
+Monte docs/TRACKER.md com a tabela exata do enunciado (ID | Documento | Tipo |
+Conteúdo (resumo) | Fonte | Localização). Uma linha por item identificável de cada
+documento, seguindo o critério que você vai declarar no topo do arquivo. Fonte só
+TRANSCRICAO ou CODIGO. Item que o documento propôs sem a reunião decidir recebe Tipo
+"Proposta" e aponta para a fala que o motivou. Depois escreva um script que valide
+formato, falas, caminhos e cobertura, rode e cole o resultado no fim do tracker.
+```
+
+Ajustes na primeira rodada da validação:
+
+- O script contava as alternativas dos ADRs junto com a opção escolhida (que alguns ADRs também listam em "Alternativas Consideradas") e somava as linhas de decisão às de alternativa. Corrigi para comparar só alternativas não escolhidas com as linhas `ADR-NNN-ALT-`.
+- A linha `FDD-ERRO-09` apontava os erros reaproveitados para `validate.middleware.ts`, mas `UNAUTHORIZED`, `FORBIDDEN` e `NOT_FOUND` são definidos em `src/shared/errors/http-errors.ts`. Troquei o caminho.
+- A linha `FDD-CONTRATO-09` misturava o prefixo `/api/v1` (de `src/app.ts`) com o formato de erro (de `error.middleware.ts`). Deixei só o que está no arquivo citado.
+
+Resultado final: 174 linhas, 85,6% com fonte TRANSCRICAO, 25 com CODIGO, 139 de 139 itens das categorias contadas cobertos, nenhum erro.
+
+Revisão do Tracker, segunda rodada: o script só confere se a fala existe, então listei cada linha ao lado do texto das falas citadas e li uma por uma.
+
+- Três itens de "fora de escopo" estavam com o tipo errado. Rate limiting estava como "adiado", mas a reunião decidiu "observar e decidir depois", que é questão em aberto. O painel visual estava como "descartado", mas Larissa disse que é projeto do time de frontend. O arquivamento estava como "adiado", mas Diego disse "fora do escopo dessa feature".
+- Cinco códigos de erro (`WEBHOOK_DEAD_LETTER_NOT_FOUND`, `WEBHOOK_PAYLOAD_TOO_LARGE`, `WEBHOOK_DELIVERY_TIMEOUT`, `WEBHOOK_DELIVERY_FAILED`, `WEBHOOK_MAX_ATTEMPTS_EXCEEDED`) estavam com tipo "Erro", como se a reunião tivesse dado esses nomes. A reunião só citou `WEBHOOK_NOT_FOUND`, `WEBHOOK_INVALID_URL` e `WEBHOOK_SECRET_REQUIRED`. Os outros cinco viraram "Proposta (código de erro)". O mesmo valeu para o `redact` do secret no logger.
+- A listagem de webhooks com `customerId` na query não dizia que isso é escolha do FDD com a questão do body ou path ainda aberta. Acrescentei a referência à questão do RFC.
+- Duas linhas ganharam a fala que faltava: a confirmação de Sofia sobre os campos da configuração ([09:21]) e a fala de Diego que levantou o risco de rajada ([09:38]).
