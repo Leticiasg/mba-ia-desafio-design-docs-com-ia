@@ -68,7 +68,9 @@ Quatro models novos em `prisma/schema.prisma`, com uma migration nova em `prisma
 | `WebhookDeadLetter` (`webhook_dead_letter`) | `id`, `eventId`, `webhookId`, `payload`, `failureReason`, `failedAt`, `replayedAt` (nulo), `replayedById` (nulo, FK `users`) | payload, motivo e horário: [09:18] Diego; quem fez o replay: [09:36] Sofia |
 | `WebhookDelivery` (`webhook_deliveries`) | `id`, `webhookId`, `eventId`, `attempt`, `success`, `responseStatus` (nulo), `responseBody` (nulo), `durationMs`, `createdAt`. Índice em `webhookId` + `createdAt` | sucesso/falha, payload, response e tempo de resposta: [09:34] Marcos |
 
-Uma linha da outbox corresponde a um envio para um endpoint. Se o customer tem dois webhooks que assinam o mesmo status, a mudança gera duas linhas, cada uma com seu `event_id`, porque cada endpoint tem sua própria fila de tentativas e seu próprio histórico ([09:34] Marcos, [09:44] Sofia). O status `FAILED` da outbox marca o evento que foi para a DLQ; a espera entre tentativas usa `PENDING` com `nextAttemptAt` no futuro.
+Uma linha da outbox corresponde a um envio para um endpoint. Se o customer tem dois webhooks que assinam o mesmo status, a mudança gera duas linhas, cada uma com seu `event_id`. Isso é proposta deste FDD: a reunião só diz que o UUID nasce quando o evento entra na outbox e é único por evento ([09:25] Diego). A escolha deixa cada endpoint com sua própria fila de tentativas e seu próprio histórico de entregas ([09:34] Marcos).
+
+O histórico de entregas não copia o payload: o endpoint 6 busca o payload na linha da outbox pelo `eventId`. O status `FAILED` da outbox marca o evento que foi para a DLQ; a espera entre tentativas usa `PENDING` com `nextAttemptAt` no futuro.
 
 O campo `secret` fica legível no banco porque o HMAC precisa da secret em si para assinar ([ADR-004](adrs/ADR-004-hmac-sha256-com-secret-por-endpoint.md)). Ela nunca aparece em resposta da API depois da criação ou da rotação, nem em log.
 
@@ -220,7 +222,7 @@ Response `201 Created`:
 }
 ```
 
-Semântica: a secret é gerada pela plataforma e só aparece nesta resposta e na rotação ([09:31] Marcos). `statuses` aceita valores do enum `OrderStatus` (`prisma/schema.prisma`) e não pode ser vazio. Status: `201`; `400 VALIDATION_ERROR` (body inválido, incluindo url fora de https, ver P-03); `401 UNAUTHORIZED`; `404 NOT_FOUND` (customer inexistente, `NotFoundError('Customer')`).
+Semântica: a secret é gerada pela plataforma e só aparece nesta resposta e na rotação ([09:31] Marcos). `statuses` aceita valores do enum `OrderStatus` (`prisma/schema.prisma`) e não pode ser vazio. Status: `201`; `400 VALIDATION_ERROR` (body inválido); `400` para url fora de https, com `VALIDATION_ERROR` ou `WEBHOOK_INVALID_URL` conforme P-03; `401 UNAUTHORIZED`; `404 NOT_FOUND` (customer inexistente, `NotFoundError('Customer')`).
 
 ### 2. Listar webhooks de um customer — `GET /api/v1/webhooks?customerId=...`
 
@@ -281,7 +283,7 @@ Response `200 OK`:
 }
 ```
 
-Semântica: aceita `url`, `statuses` e `active`, todos opcionais ([09:33] Bruno, [09:21] Bruno). A secret não muda por aqui. A mudança de `statuses` vale para as próximas mudanças de status; eventos já gravados na outbox seguem como estão. Status: `200`; `400 VALIDATION_ERROR`; `401 UNAUTHORIZED`; `404 WEBHOOK_NOT_FOUND`.
+Semântica: aceita `url`, `statuses` e `active`, todos opcionais ([09:33] Bruno, [09:21] Bruno). A secret não muda por aqui. Uma `url` nova segue a mesma regra de https do endpoint 1 (P-03). A mudança de `statuses` vale para as próximas mudanças de status; eventos já gravados na outbox seguem como estão. Status: `200`; `400 VALIDATION_ERROR`; `401 UNAUTHORIZED`; `404 WEBHOOK_NOT_FOUND`.
 
 ### 4. Remover webhook — `DELETE /api/v1/webhooks/:id`
 
@@ -527,7 +529,7 @@ Arquivos novos, todos em `src/modules/webhooks/` (a criar): `webhook.controller.
 
 | Item | Situação |
 | --- | --- |
-| Node.js | `>= 20` (`package.json`). O `fetch` nativo faz a chamada HTTP e o módulo `crypto` nativo faz o HMAC-SHA256, sem dependência nova |
+| Node.js | `>= 20` (`package.json`). Proposta deste FDD: o `fetch` global do Node faz a chamada HTTP e o módulo `crypto` nativo faz o HMAC-SHA256, sem dependência nova, na linha do "não vamos botar nada novo" ([09:29] Bruno) |
 | MySQL 8.0 | `docker-compose.yml`; sem mudança de versão |
 | Prisma 5.22 | `$transaction` interativa já usada no `changeStatus` |
 | uuid 11 | já é dependência; o Prisma gera os ids com `@default(uuid())` |
@@ -581,5 +583,5 @@ Pontos que a implementação precisa saber e que nem a reunião nem o código de
 | P-07 | Com retentativas, um evento posterior do mesmo pedido deve esperar o anterior sair da fila? | Fluxo 2, garantia de ordem | [09:12] Diego, [09:13] Larissa |
 | P-08 | Codificação da assinatura (hex ou base64) e formato do `X-Timestamp` | Endpoint 8 | [09:20] Sofia, [09:44] Diego |
 | P-09 | O que acontece com eventos em `PROCESSING` quando o worker cai no meio do envio? | Fluxo 2 | [09:08] Diego (status listados, sem regra de recuperação) |
-| P-10 | O que acontece com os eventos pendentes de um webhook removido ou desativado? | Endpoints 3 e 4 | [09:33] Bruno |
+| P-10 | O que acontece com os eventos pendentes de um webhook removido ou desativado? Se a FK da outbox impedir o DELETE, o Prisma lança o erro `P2003`, que o `errorMiddleware` não trata hoje (só `P2002` e `P2025`) e que viraria `500` | Endpoints 3 e 4 | [09:33] Bruno, `src/middlewares/error.middleware.ts` |
 | P-11 | Tamanho do lote lido pelo worker a cada ciclo | Fluxo 2 | [09:08] Diego ("batch pequeno") |

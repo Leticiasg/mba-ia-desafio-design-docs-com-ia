@@ -118,3 +118,11 @@ Ajustes na revisão:
 - A linha de "atomicidade" na tabela de resiliência citava [09:18] Diego como se ele tivesse dito aquilo. Marquei como proposta do FDD derivada da DLQ em tabela separada.
 
 Verificação por script: as 12 seções obrigatórias; 8 contratos com request em bloco `http` (7 da API + a chamada de saída), 6 com response JSON e o DELETE com `204` sem corpo; 8 códigos `WEBHOOK_*`; todos os timestamps existem; 22 caminhos reais na seção de integração; só `src/worker.ts` e `src/modules/webhooks/` não existem, ambos marcados como "a criar".
+
+Revisão do FDD, segunda rodada:
+
+- O modelo dizia que cada endpoint gera sua própria linha na outbox, citando Marcos e Sofia como se tivessem decidido isso. A reunião só diz que o UUID nasce na entrada da outbox e é único por evento ([09:25] Diego). Marquei como proposta do FDD.
+- O endpoint 6 devolvia o payload de cada entrega, mas a tabela `webhook_deliveries` não tinha esse campo. Expliquei que o payload vem da outbox pelo `eventId`.
+- O endpoint 1 dizia que url fora de https dá `VALIDATION_ERROR`, o que já escolhia um lado da pendência P-03. Agora cita os dois códigos possíveis; o endpoint 3 (PATCH) passou a mencionar a mesma regra.
+- "Fetch nativo, sem dependência nova" estava escrito como fato. Marquei como proposta, apoiada no "não vamos botar nada novo" ([09:29] Bruno).
+- Achado novo na P-10: se a FK da outbox bloquear o DELETE do webhook, o Prisma lança `P2003`, que o `errorMiddleware` não trata (só `P2002` e `P2025`) e viraria erro 500.
