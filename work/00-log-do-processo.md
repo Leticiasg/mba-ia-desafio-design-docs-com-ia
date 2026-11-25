@@ -126,3 +126,29 @@ Revisão do FDD, segunda rodada:
 - O endpoint 1 dizia que url fora de https dá `VALIDATION_ERROR`, o que já escolhia um lado da pendência P-03. Agora cita os dois códigos possíveis; o endpoint 3 (PATCH) passou a mencionar a mesma regra.
 - "Fetch nativo, sem dependência nova" estava escrito como fato. Marquei como proposta, apoiada no "não vamos botar nada novo" ([09:29] Bruno).
 - Achado novo na P-10: se a FK da outbox bloquear o DELETE do webhook, o Prisma lança `P2003`, que o `errorMiddleware` não trata (só `P2002` e `P2025`) e viraria erro 500.
+
+## E6 — PRD
+
+Formato: as 12 seções do enunciado, mais "fluxo de integração do cliente", que a aula 07 do curso lista entre as seções de um PRD de feature. Nível de produto: sem nomes de tabela, rotas ou códigos de erro; para o "como", o PRD aponta para o RFC, os ADRs e o FDD.
+
+Prompt usado:
+
+```text
+Escreva o PRD consolidando ADRs, RFC e FDD no nível de produto. Use só fatos com
+[hh:mm] Nome. Métricas: só números ditos na reunião. Fora de escopo: itens
+descartados ou adiados, cada um com a fala. Riscos com probabilidade, impacto e
+mitigação; como a reunião não dá probabilidade, escreva a justificativa de cada
+nota a partir de uma fala e diga que a nota é avaliação do documento. Não decida
+nenhuma pendência do FDD.
+```
+
+Metas numéricas, todas da reunião: menos de 10 segundos ([09:02] Marcos), 3 clientes ([09:00] Marcos), fim de novembro ([09:45] Marcos) e quase 15 horas de tentativas ([09:17] Diego).
+
+Ajustes na revisão:
+
+- A meta de prazo dizia "até o fim de novembro, dentro das três sprints estimadas", e o risco da Atlas dizia que "a estimativa cabe no prazo". Ninguém na reunião comparou as três sprints com a data. Reescrevi: a data é a pedida pela Atlas, a estimativa é de três sprints, e o que Marcos disse foi que a Atlas "vai gostar" ([09:47]).
+- O critério de aceitação 6 dizia que "duas entregas do mesmo evento têm o mesmo identificador", o que já decidia a pendência P-02 (replay mantém ou não o `event_id`). Restringi às novas tentativas automáticas.
+
+Verificação por script: 12 seções; 14 RFs; 10 RNFs; 8 itens fora de escopo; 5 riscos com probabilidade e impacto; todos os timestamps existem; links funcionam.
+
+Ajuste pedido por mim no PRD: a tabela de riscos tinha uma coluna "Justificativa" que explicava só a probabilidade. Troquei por "Motivo da nota", que explica separadamente a probabilidade e o impacto de cada risco, sempre a partir de uma fala da reunião.
