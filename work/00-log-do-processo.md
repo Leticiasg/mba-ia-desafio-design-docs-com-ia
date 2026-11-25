@@ -84,3 +84,37 @@ Revisão dos ADRs, segunda rodada (pedi uma releitura de cada ADR contra as fala
 - O payload gravado pronto estava como consequência negativa no ADR-001, mas Larissa o escolheu justamente por isso ([09:52]). Passou para as positivas.
 - O ADR-002 listava quatro decisores e os outros, cinco. Sofia estava na call nesse trecho; incluí.
 - A função `publishWebhookEvent` aparecia com o mesmo peso no ADR-001 e no ADR-006. Deixei o ADR-006 apontando para o ADR-001 em vez de repetir o raciocínio.
+
+## E4 — RFC
+
+O material do curso não traz um template de RFC, só a diferença entre RFC (discussão antes da decisão) e ADR (registro depois). Usei as seções do enunciado. Como as decisões já estavam fechadas na reunião, o RFC ficou com status "Em revisão" e se apresenta como o documento de design que Larissa disse que ia abrir para Bruno e Diego revisarem ([09:50] Larissa).
+
+Regra para não invadir o FDD: o RFC não tem payload, códigos de erro, status HTTP, modelagem de tabela nem métricas; cada bloco da proposta resume a decisão em duas ou três frases e aponta para o ADR.
+
+Questões em aberto separadas em três grupos: não decididas na reunião (4), adiadas (2) e lacunas que apareceram ao escrever os ADRs (2), marcadas como não vindas da reunião.
+
+Ajuste: a primeira versão dizia, na tabela de riscos, que "testes de integração no `changeStatus` cobrem o caminho", sem fonte. Troquei pelos testes ponta a ponta que Larissa colocou no plano ([09:46] Larissa).
+
+Verificação por script: as 8 seções do enunciado; todos os timestamps existem; links para os 6 ADRs, PRD, FDD e Tracker funcionam; único caminho inexistente é `src/modules/webhooks/`, marcado como "(a criar)". Tamanho: cerca de 1.700 palavras, dentro de 2 a 4 páginas.
+
+## E5 — FDD
+
+Formato: as 10 seções da aula de FDD do curso (06-feature-design-doc.md), mais as exigidas pelo enunciado (matriz de erros, resiliência, "Integração com o sistema existente") e duas seções minhas: modelo de dados e pendências para a revisão. Segui a dica da aula 08: usar o esqueleto como contrato de completude e preencher com o inventário, o mapa do código, os ADRs e o RFC.
+
+Antes de escrever, a IA apontou quatro pontos em que a transcrição e o código não fecham. Decidi deixar todos como pendência, sem escolher lado:
+
+- https "no schema Zod" ([09:23] Sofia) × código `WEBHOOK_INVALID_URL` ([09:28] Bruno): o `validate.middleware.ts` transforma todo erro de Zod em `VALIDATION_ERROR`, então as duas coisas não acontecem juntas;
+- `WEBHOOK_SECRET_REQUIRED` foi citado, mas a secret é gerada pela plataforma, então não há quando ocorrer;
+- limite de 64KB: a reunião não disse onde o erro acontece, e na inserção ele desfaria a mudança de status;
+- o que conta como falha de entrega além do timeout.
+
+Ao escrever os fluxos apareceram mais cinco lacunas, também registradas como pendência (P-07 a P-11): ordem por pedido quando há retentativa, codificação da assinatura e formato do `X-Timestamp`, eventos presos em `PROCESSING`, eventos de webhook removido e tamanho do lote.
+
+Onde a reunião não fixou um nome (tabelas além de `webhook_outbox` e `webhook_dead_letter`, colunas, path de rotação de secret), o FDD propõe e marca como proposta. O `customerId` no body da criação e na query da listagem segue o padrão de `src/modules/orders/order.schemas.ts`, com a ressalva de que a reunião deixou body ou path em aberto.
+
+Ajustes na revisão:
+
+- A primeira versão colocava `requestId` no log `webhook_event_enqueued`, mas a função `publishWebhookEvent(tx, order, fromStatus, toStatus)` decidida na reunião não recebe esse valor. Reescrevi o tracing: a ligação com a requisição é feita pelo `orderId`, que aparece no path logado pelo `request-logger.middleware.ts`.
+- A linha de "atomicidade" na tabela de resiliência citava [09:18] Diego como se ele tivesse dito aquilo. Marquei como proposta do FDD derivada da DLQ em tabela separada.
+
+Verificação por script: as 12 seções obrigatórias; 8 contratos com request em bloco `http` (7 da API + a chamada de saída), 6 com response JSON e o DELETE com `204` sem corpo; 8 códigos `WEBHOOK_*`; todos os timestamps existem; 22 caminhos reais na seção de integração; só `src/worker.ts` e `src/modules/webhooks/` não existem, ambos marcados como "a criar".
