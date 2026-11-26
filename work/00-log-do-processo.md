@@ -53,7 +53,7 @@ Lacunas de observabilidade: a IA apontou que nem a reunião nem o código têm m
 
 ## E3 — ADRs
 
-Formato: MADR adaptado do material do curso (aulas 02 a 05 e 11 do módulo de ADR), em português, sem blocos de código e no nível de decisão. Seções fixas: Status, Contexto, Decisão, Alternativas Consideradas, Consequências (positivas, negativas e uma linha de trade-off) e Referências, com metadados de data, decisores, origem na transcrição e relações (depende de / relacionado a).
+Formato: MADR adaptado, em português, sem blocos de código e no nível de decisão. Seções fixas: Status, Contexto, Decisão, Alternativas Consideradas, Consequências (positivas, negativas e uma linha de trade-off) e Referências, com metadados de data, decisores, origem na transcrição e relações (depende de / relacionado a).
 
 Prompt usado:
 
@@ -87,7 +87,7 @@ Revisão dos ADRs, segunda rodada (pedi uma releitura de cada ADR contra as fala
 
 ## E4 — RFC
 
-O material do curso não traz um template de RFC, só a diferença entre RFC (discussão antes da decisão) e ADR (registro depois). Usei as seções do enunciado. Como as decisões já estavam fechadas na reunião, o RFC ficou com status "Em revisão" e se apresenta como o documento de design que Larissa disse que ia abrir para Bruno e Diego revisarem ([09:50] Larissa).
+Usei as seções do enunciado. O RFC é a discussão antes da decisão; o ADR é o registro depois. Como as decisões já estavam fechadas na reunião, o RFC ficou com status "Em revisão" e se apresenta como o documento de design que Larissa disse que ia abrir para Bruno e Diego revisarem ([09:50] Larissa).
 
 Regra para não invadir o FDD: o RFC não tem payload, códigos de erro, status HTTP, modelagem de tabela nem métricas; cada bloco da proposta resume a decisão em duas ou três frases e aponta para o ADR.
 
@@ -99,7 +99,7 @@ Verificação por script: as 8 seções do enunciado; todos os timestamps existe
 
 ## E5 — FDD
 
-Formato: as 10 seções da aula de FDD do curso (06-feature-design-doc.md), mais as exigidas pelo enunciado (matriz de erros, resiliência, "Integração com o sistema existente") e duas seções minhas: modelo de dados e pendências para a revisão. Segui a dica da aula 08: usar o esqueleto como contrato de completude e preencher com o inventário, o mapa do código, os ADRs e o RFC.
+Formato: as seções exigidas pelo enunciado e duas seções minhas, modelo de dados e pendências para a revisão. O esqueleto do documento funcionou como contrato de completude, preenchido com o inventário, o mapa do código, os ADRs e o RFC.
 
 Antes de escrever, a IA apontou quatro pontos em que a transcrição e o código não fecham. Decidi deixar todos como pendência, sem escolher lado:
 
@@ -129,7 +129,7 @@ Revisão do FDD, segunda rodada:
 
 ## E6 — PRD
 
-Formato: as 12 seções do enunciado, mais "fluxo de integração do cliente", que a aula 07 do curso lista entre as seções de um PRD de feature. Nível de produto: sem nomes de tabela, rotas ou códigos de erro; para o "como", o PRD aponta para o RFC, os ADRs e o FDD.
+Formato: as 12 seções do enunciado, mais um "fluxo de integração do cliente" dentro de público-alvo e cenários. Nível de produto: sem nomes de tabela, rotas ou códigos de erro; para o "como", o PRD aponta para o RFC, os ADRs e o FDD.
 
 Prompt usado:
 
@@ -150,8 +150,6 @@ Ajustes na revisão:
 - O critério de aceitação 6 dizia que "duas entregas do mesmo evento têm o mesmo identificador", o que já decidia a pendência P-02 (replay mantém ou não o `event_id`). Restringi às novas tentativas automáticas.
 
 Verificação por script: 12 seções; 14 RFs; 10 RNFs; 8 itens fora de escopo; 5 riscos com probabilidade e impacto; todos os timestamps existem; links funcionam.
-
-Ajuste pedido por mim no PRD: a tabela de riscos tinha uma coluna "Justificativa" que explicava só a probabilidade. Troquei por "Motivo da nota", que explica separadamente a probabilidade e o impacto de cada risco, sempre a partir de uma fala da reunião.
 
 ## E7 — Tracker
 
@@ -184,3 +182,13 @@ Revisão do Tracker, segunda rodada: o script só confere se a fala existe, ent�
 - Cinco códigos de erro (`WEBHOOK_DEAD_LETTER_NOT_FOUND`, `WEBHOOK_PAYLOAD_TOO_LARGE`, `WEBHOOK_DELIVERY_TIMEOUT`, `WEBHOOK_DELIVERY_FAILED`, `WEBHOOK_MAX_ATTEMPTS_EXCEEDED`) estavam com tipo "Erro", como se a reunião tivesse dado esses nomes. A reunião só citou `WEBHOOK_NOT_FOUND`, `WEBHOOK_INVALID_URL` e `WEBHOOK_SECRET_REQUIRED`. Os outros cinco viraram "Proposta (código de erro)". O mesmo valeu para o `redact` do secret no logger.
 - A listagem de webhooks com `customerId` na query não dizia que isso é escolha do FDD com a questão do body ou path ainda aberta. Acrescentei a referência à questão do RFC.
 - Duas linhas ganharam a fala que faltava: a confirmação de Sofia sobre os campos da configuração ([09:21]) e a fala de Diego que levantou o risco de rajada ([09:38]).
+
+## E8 — README
+
+Substituí o enunciado pelo README do processo, nas seis seções pedidas, com link para o enunciado original no repositório base. Fonte de tudo: este log e as regras da sessão.
+
+Prompts no README: o trecho do pedido de abertura e os prompts das etapas de ADRs, PRD e Tracker, copiados sem alteração deste log, porque foram eles que geraram os documentos.
+
+Atualizei `docs/adrs/README.md`: o exemplo de nome passou para o formato `ADR-NNN-titulo-em-kebab-case.md`, que é o dos arquivos, e o arquivo ganhou um índice dos seis ADRs.
+
+Revisão final: quatro menções a `src/worker.ts` e `src/modules/webhooks/` (no ADR-002 e no FDD) estavam sem a marca "(a criar)". Como o enunciado não aceita arquivo de código inexistente citado nos documentos, marquei todas.

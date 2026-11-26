@@ -55,7 +55,7 @@ Trade-off: o time aceitou até 2 segundos de atraso e um único worker em troca 
 
 ## Referências
 
-- `src/server.ts` (entry point atual, modelo para `src/worker.ts`)
+- `src/server.ts` (entry point atual, modelo para `src/worker.ts`, a criar)
 - `src/config/database.ts` (`createPrismaClient`)
 - [ADR-003](ADR-003-retry-com-backoff-e-dlq.md) para o que acontece quando a entrega falha
 - [RFC](../RFC.md) e [FDD](../FDD.md) da feature

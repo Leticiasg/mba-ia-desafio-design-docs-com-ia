@@ -27,7 +27,7 @@ As restrições técnicas que moldam o desenho:
 ## Objetivos técnicos
 
 1. Gravar um evento na outbox na mesma transação do `changeStatus`, só para webhooks ativos que assinam o status de destino ([09:34] Bruno).
-2. Entregar cada evento por um worker em processo separado, com polling de 2 segundos ([09:09] Diego, [09:11] Diego).
+2. Entregar cada evento por um worker em processo separado, com polling de até 2 segundos ([09:09] Diego, [09:11] Diego).
 3. Assinar cada envio com HMAC-SHA256 usando a secret do endpoint ([09:20] Sofia, [09:21] Sofia).
 4. Retentar falhas em 1m, 5m, 30m, 2h e 12h e mover para a DLQ depois disso ([09:17] Larissa).
 5. Expor CRUD de configuração, rotação de secret, histórico de entregas e replay da DLQ pela API ([09:31] Marcos, [09:33] Bruno, [09:34] Marcos, [09:21] Sofia, [09:18] Diego).
@@ -125,7 +125,7 @@ sequenceDiagram
     end
 ```
 
-1. `src/worker.ts` carrega o env de `src/config/env.ts`, cria uma instância própria com `createPrismaClient()` de `src/config/database.ts` ([09:30] Bruno) e usa o `logger` de `src/shared/logger/index.ts`. Encerra em SIGINT e SIGTERM chamando `prisma.$disconnect()`, como `src/server.ts` faz hoje.
+1. `src/worker.ts` (a criar) carrega o env de `src/config/env.ts`, cria uma instância própria com `createPrismaClient()` de `src/config/database.ts` ([09:30] Bruno) e usa o `logger` de `src/shared/logger/index.ts`. Encerra em SIGINT e SIGTERM chamando `prisma.$disconnect()`, como `src/server.ts` faz hoje.
 2. A cada 2 segundos ([09:09] Diego), busca os eventos com `status = PENDING` e `nextAttemptAt <= agora`, em ordem de `createdAt`, num lote pequeno ([09:08] Diego). O tamanho do lote não foi definido (P-11).
 3. Marca o lote como `PROCESSING` antes de enviar. O que fazer com eventos presos em `PROCESSING` se o worker cair no meio do envio não foi decidido (P-09).
 4. Para cada evento, lê o endpoint. Monta os headers, assina o corpo com HMAC-SHA256 e envia um `POST` para a `url`, com timeout de 10 segundos ([09:42] Diego).
@@ -507,7 +507,7 @@ A secret nunca entra em log. A lista `redact` de `src/shared/logger/index.ts` ga
 
 | Arquivo | Como o módulo de webhooks se integra |
 | --- | --- |
-| `src/modules/orders/order.service.ts` | `changeStatus` chama `publishWebhookEvent(tx, order, from, to)` depois do `tx.orderStatusHistory.create`, dentro do mesmo `this.prisma.$transaction`. A função vem de `src/modules/webhooks/` e recebe o `tx` (tipo `Prisma.TransactionClient`, já usado no arquivo como `TxClient`). O construtor do `OrderService` não muda ([09:41] Bruno, [09:41] Diego) |
+| `src/modules/orders/order.service.ts` | `changeStatus` chama `publishWebhookEvent(tx, order, from, to)` depois do `tx.orderStatusHistory.create`, dentro do mesmo `this.prisma.$transaction`. A função vem de `src/modules/webhooks/` (a criar) e recebe o `tx` (tipo `Prisma.TransactionClient`, já usado no arquivo como `TxClient`). O construtor do `OrderService` não muda ([09:41] Bruno, [09:41] Diego) |
 | `src/modules/orders/order.status.ts` | Sem mudança. O enum `OrderStatus` e as transições definem quais valores `statuses` aceita e quais `from_status`/`to_status` podem aparecer. Um evento só nasce de uma transição que passou por `canTransition` |
 | `prisma/schema.prisma` | Ganha os models `WebhookEndpoint`, `WebhookOutbox`, `WebhookDeadLetter` e `WebhookDelivery`, e as relações em `Customer` e `User` (para `replayedById`). Ids UUID `@db.Char(36)` como o resto ([09:51] Larissa) |
 | `prisma/migrations/` | Uma migration nova, gerada com `npm run db:migrate`, ao lado de `20260519182739_init` |
@@ -537,7 +537,7 @@ Arquivos novos, todos em `src/modules/webhooks/` (a criar): `webhook.controller.
 | uuid 11 | já é dependência; o Prisma gera os ids com `@default(uuid())` |
 | Zod 3.23, Express 4.21, Pino 9.5 | já em uso |
 | Bibliotecas novas | nenhuma |
-| Processos | passa a haver dois: API (`src/server.ts`) e worker (`src/worker.ts`), com o mesmo banco ([09:11] Diego) |
+| Processos | passa a haver dois: API (`src/server.ts`) e worker (`src/worker.ts`, a criar), com o mesmo banco ([09:11] Diego) |
 
 Compatibilidade: nenhum endpoint existente muda de contrato. O `PATCH /api/v1/orders/:id/status` continua com a mesma request e a mesma response; a única diferença é que a transação passa a gravar na outbox e pode falhar se essa gravação falhar ([09:40] Bruno). Para os clientes, o contrato público novo é o da seção 8: headers, corpo em snake_case e entrega at-least-once.
 
