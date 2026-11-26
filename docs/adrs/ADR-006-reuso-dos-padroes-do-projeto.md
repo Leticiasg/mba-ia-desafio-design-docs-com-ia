@@ -12,7 +12,7 @@ Aceito.
 
 ## Contexto
 
-O OMS já tem convenções claras. Cada domínio tem uma pasta própria em `src/modules/`, com controller, service, repository, routes e schemas ([09:27] Bruno); `src/modules/orders/` e `src/modules/customers/` seguem esse formato. Os erros partem de `AppError` (`src/shared/errors/app-error.ts`), com classes específicas como `InvalidStatusTransitionError` e `InsufficientStockError` em `src/shared/errors/http-errors.ts` e códigos como `INVALID_STATUS_TRANSITION` e `INSUFFICIENT_STOCK` ([09:28] Bruno). O logger é Pino (`src/shared/logger/index.ts`). O `errorMiddleware` em `src/middlewares/error.middleware.ts` já trata `AppError`, erros do Zod e erros conhecidos do Prisma ([09:29] Bruno). O `requireRole` de `src/middlewares/auth.middleware.ts` já controla acesso por role, e todos os ids do `prisma/schema.prisma` são UUID.
+O OMS já tem convenções claras. Cada domínio tem uma pasta própria em `src/modules/`, com controller, service, repository, routes e schemas ([09:27] Bruno); `src/modules/orders/` e `src/modules/customers/` seguem esse formato. Os erros partem de `AppError` (`src/shared/errors/app-error.ts`), com classes específicas como `InvalidStatusTransitionError` e `InsufficientStockError` em `src/shared/errors/http-errors.ts` e códigos como `INVALID_STATUS_TRANSITION` e `INSUFFICIENT_STOCK` ([09:28] Bruno). O logger é Pino (`src/shared/logger/index.ts`). O `errorMiddleware` em `src/middlewares/error.middleware.ts` já trata `AppError`, erros do Zod e erros conhecidos do Prisma ([09:29] Bruno). O `requireRole` de `src/middlewares/auth.middleware.ts` já controla acesso por role, e os ids das entidades do `prisma/schema.prisma` são UUID (a exceção é `OrderNumberSequence`, com id inteiro).
 
 A feature precisa de rotas, validação, erros, logs, controle de acesso e uma ligação com o `changeStatus` de `src/modules/orders/order.service.ts`. A pergunta era quanto disso reaproveitar.
 
@@ -32,7 +32,7 @@ O módulo de webhooks é um módulo igual aos outros ([09:30] Larissa):
 - os logs usam o logger Pino existente, na API e no worker ([09:29] Bruno);
 - a validação usa schemas Zod com o `validate` de `src/middlewares/validate.middleware.ts` ([09:30] Larissa);
 - o replay da DLQ usa `requireRole('ADMIN')`, como já acontece em `src/modules/users/user.routes.ts` ([09:36] Larissa);
-- as tabelas novas usam ids UUID, como o resto do `prisma/schema.prisma` ([09:51] Larissa).
+- as tabelas novas usam ids UUID, como as entidades do `prisma/schema.prisma` ([09:51] Larissa).
 
 ## Consequências
 

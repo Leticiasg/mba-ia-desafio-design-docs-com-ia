@@ -52,7 +52,7 @@ A contagem e a validação desta tabela estão no fim do arquivo e podem ser ref
 | PRD-NFR-09 | `docs/PRD.md` | Restrição | Sem infraestrutura nova | TRANSCRICAO | [09:07] Diego; [09:11] Diego |
 | PRD-NFR-10 | `docs/PRD.md` | Restrição | Revisão de segurança de pelo menos dois dias úteis antes do deploy | TRANSCRICAO | [09:46] Sofia |
 | PRD-FORA-01 | `docs/PRD.md` | Escopo excluído (adiado) | Aviso por e-mail quando o webhook falha | TRANSCRICAO | [09:37] Larissa; [09:38] Marcos |
-| PRD-FORA-02 | `docs/PRD.md` | Escopo excluído (projeto separado) | Painel visual para o cliente | TRANSCRICAO | [09:40] Larissa |
+| PRD-FORA-02 | `docs/PRD.md` | Escopo excluído (fora desta fase, projeto separado) | Painel visual para o cliente | TRANSCRICAO | [09:40] Larissa |
 | PRD-FORA-03 | `docs/PRD.md` | Escopo excluído (em aberto) | Rate limiting de envio por cliente | TRANSCRICAO | [09:39] Diego; [09:39] Larissa |
 | PRD-FORA-04 | `docs/PRD.md` | Escopo excluído (descartado) | Webhooks de entrada | TRANSCRICAO | [09:02] Marcos |
 | PRD-FORA-05 | `docs/PRD.md` | Escopo excluído (descartado) | Ordem global entre pedidos | TRANSCRICAO | [09:13] Larissa; [09:14] Marcos |

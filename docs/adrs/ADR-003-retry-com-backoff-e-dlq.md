@@ -36,7 +36,7 @@ Positivas:
 
 - Uma indisponibilidade de horas, como a manutenção de duas horas citada, é coberta sem perder o evento.
 - Nenhum evento fica pendente para sempre: depois de cerca de 15 horas ele sai da outbox.
-- A DLQ guarda o motivo da falha, o que ajuda o suporte a entender o que houve antes de reprocessar.
+- A DLQ guarda o motivo da falha, o que serve de evidência para debug antes de reprocessar ([09:18] Diego).
 
 Negativas:
 

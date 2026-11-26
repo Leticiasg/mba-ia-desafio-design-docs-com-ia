@@ -26,7 +26,6 @@ Há também um risco comercial: a Atlas sugeriu que pode ir para um concorrente 
 
 - **Clientes B2B com integração própria**, como os três que pediram a feature ([09:00] Marcos). Eles recebem as notificações e configuram os webhooks pela API, autenticados com usuários do OMS que os representam ([09:32] Marcos).
 - **Administradores do OMS**, que reprocessam notificações que falharam de vez ([09:36] Sofia).
-- **Suporte e produto**, que consultam o histórico de entregas quando um cliente diz que não recebeu algo ([09:34] Marcos).
 
 **Cenários:**
 
@@ -34,7 +33,7 @@ Há também um risco comercial: a Atlas sugeriu que pode ir para um concorrente 
 2. *Cliente em manutenção.* O sistema do cliente fica duas horas fora do ar numa manutenção planejada, como já aconteceu com um cliente ([09:16] Diego). As notificações desse período chegam depois, quando ele volta.
 3. *Notificação repetida.* O cliente recebe a mesma notificação duas vezes e descarta a segunda pelo identificador do evento ([09:24] Diego, [09:25] Diego).
 4. *Secret vazada.* Um cliente expõe sua secret num log, como já aconteceu ([09:22] Diego). Ele pede uma secret nova e tem 24 horas para trocar nos sistemas dele ([09:21] Sofia).
-5. *"Não recebi."* O cliente diz que não recebeu um aviso. Ele mesmo, ou o suporte, olha as últimas 100 entregas daquele webhook e vê se houve falha, o que o sistema dele respondeu e quanto tempo levou ([09:34] Marcos).
+5. *"Não recebi."* O cliente diz que não recebeu um aviso. Ele olha as últimas 100 entregas daquele webhook e vê se houve falha, o que o sistema dele respondeu e quanto tempo levou ([09:34] Marcos).
 6. *Falha definitiva.* Depois de quase 15 horas de tentativas, uma notificação vai para a fila de falhas. Quando o cliente resolve o problema, um administrador reenvia ([09:17] Diego, [09:18] Diego).
 
 **Fluxo de integração do cliente:**
@@ -70,7 +69,7 @@ Larissa também condicionou a próxima fase (aviso por e-mail) a medir o impacto
 | Item | Situação | Fonte |
 | --- | --- | --- |
 | Aviso por e-mail ao cliente quando o webhook dele falha repetidamente | Adiado para a próxima fase, depois de medir o impacto desta | [09:37] Larissa, [09:38] Marcos |
-| Painel visual para o cliente ver os webhooks | Descartado nesta fase; é projeto separado do time de frontend. Nesta fase só há API | [09:40] Larissa |
+| Painel visual para o cliente ver os webhooks | Fora desta fase; é projeto separado do time de frontend. Nesta fase só há API | [09:40] Larissa |
 | Limite de envio por cliente (rate limiting) | Não entra; o time vai observar e decidir se virar problema | [09:39] Diego, [09:39] Larissa |
 | Webhooks de entrada (cliente enviando dados para o OMS) | Descartado; os clientes só querem receber | [09:02] Marcos |
 | Garantia de ordem global entre pedidos | Não entra; a ordem vale só dentro de cada pedido, e os clientes não pediram mais que isso | [09:13] Larissa, [09:14] Marcos |

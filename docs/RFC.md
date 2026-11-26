@@ -23,7 +23,7 @@ Os clientes B2B precisam saber em menos de 10 segundos que o status de um pedido
 
 O fluxo é só de saída: o OMS envia, os clientes recebem ([09:02] Marcos, [09:03] Sofia). O código atual não tem nenhum mecanismo de evento, fila ou notificação externa.
 
-A restrição técnica central está no `changeStatus` de `src/modules/orders/order.service.ts`. Ele roda numa transação que atualiza o pedido, grava o histórico e mexe no estoque ([09:04] Bruno). Colocar uma chamada HTTP ali faria um cliente lento travar a mudança de status de outros pedidos, e um cliente fora do ar não tem como desfazer uma mudança que já aconteceu ([09:04] Bruno).
+A restrição técnica central está no `changeStatus` de `src/modules/orders/order.service.ts`. Ele roda numa transação que atualiza o pedido, grava o histórico e mexe no estoque ([09:04] Bruno). Colocar uma chamada HTTP ali faria um cliente lento travar a mudança de status de outros pedidos, e, se o cliente estiver fora do ar, o OMS não tem como desfazer a mudança de status por causa disso ([09:04] Bruno).
 
 ## Proposta técnica
 
@@ -57,7 +57,7 @@ Contratos, payload, códigos de erro, modelagem das tabelas e observabilidade es
 
 | Alternativa | Por que foi descartada | Trade-off que pesou | Fonte |
 | --- | --- | --- | --- |
-| Enviar o webhook de forma síncrona dentro do `changeStatus` | Um cliente lento travaria a mudança de status de outros pedidos, e um cliente fora do ar não tem como desfazer a mudança | Simplicidade e entrega imediata contra disponibilidade da operação de pedidos | [09:04] Bruno, [09:06] Diego |
+| Enviar o webhook de forma síncrona dentro do `changeStatus` | Um cliente lento travaria a mudança de status de outros pedidos, e, com o cliente fora do ar, o OMS não teria como desfazer a mudança de status | Simplicidade e entrega imediata contra disponibilidade da operação de pedidos | [09:04] Bruno, [09:06] Diego |
 | Fila externa (Redis Streams ou Redis Cluster) | Exigiria subir e operar infraestrutura nova, o que Diego chamou de overengineering para um time pequeno | Fila feita para isso contra custo de operação | [09:07] Larissa, [09:07] Diego |
 | Trigger no MySQL para acordar o worker | O MySQL não tem LISTEN/NOTIFY; a trigger não avisa processo externo sem algum improviso | Reação imediata contra uma solução frágil | [09:09] Bruno, [09:09] Diego |
 | Retry sem limite, ou só 3 tentativas | Sem limite, o evento fica pendurado para sempre; com 3, desiste em cerca de 30 minutos, antes de uma manutenção de 2 horas terminar | Insistência contra eventos presos; agressividade contra cobertura de quedas longas | [09:15] Diego, [09:16] Bruno, [09:16] Diego |

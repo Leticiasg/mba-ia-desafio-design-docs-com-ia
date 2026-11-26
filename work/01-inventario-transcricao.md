@@ -122,7 +122,7 @@ As seis decisões principais do enunciado são DEC-01 a DEC-07 (o retry e a DLQ 
 | ID | Item | Localização |
 | --- | --- | --- |
 | ADI-01 | E-mail avisando o cliente quando o webhook dele falha: fora desta fase, talvez na próxima, depois de medir impacto | [09:37] Larissa, [09:38] Marcos, [09:48] Larissa |
-| ADI-02 | Dashboard visual para o cliente: projeto separado do time de frontend; nesta fase só endpoints | [09:40] Larissa, [09:48] Larissa |
+| ADI-02 | Dashboard visual para o cliente: fora desta fase; projeto separado do time de frontend; nesta fase só endpoints | [09:40] Larissa, [09:48] Larissa |
 | ADI-03 | Arquivar linhas entregues da outbox depois de uns 30 dias: fora do escopo da feature | [09:08] Diego |
 | ADI-04 | Restringir por role o CRUD de configuração: "mais pra frente a gente pode endurecer" | [09:37] Sofia |
 | ADI-05 | Escalar para vários workers em paralelo: "problema do futuro" | [09:13] Diego |
