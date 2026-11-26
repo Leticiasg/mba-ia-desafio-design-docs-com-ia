@@ -132,7 +132,7 @@ A discussão técnica e as alternativas descartadas estão no [RFC](RFC.md).
 | Usuários do OMS que representam os clientes | É com eles que os clientes configuram os webhooks pela API | [09:32] Marcos |
 | Portal de desenvolvedor atualizado por Marcos | Os clientes precisam saber validar a assinatura e descartar repetidas | [09:26] Marcos, [09:40] Marcos |
 | Revisão de segurança da Sofia | Condição para o deploy | [09:46] Sofia, [09:49] Sofia |
-| Fluxo de mudança de status dos pedidos | É onde a notificação nasce | [09:40] Bruno, `src/modules/orders/order.service.ts` |
+| Fluxo de mudança de status dos pedidos | É onde a notificação nasce | [09:40] Bruno |
 | Confirmação do prazo com a Atlas | Marcos ficou de confirmar a data com o cliente | [09:47] Marcos |
 
 ## Riscos e mitigação
@@ -164,7 +164,7 @@ A reunião não atribuiu probabilidade nem impacto aos riscos. As notas abaixo s
 
 ## Estratégia de testes e validação
 
-- **Testes automatizados.** Testes de integração no padrão que o projeto já usa (Vitest e Supertest, como em `tests/orders.test.ts`) para os endpoints de configuração, o histórico e o reenvio, e testes ponta a ponta da integração com a mudança de status, que já estão no plano ([09:46] Larissa). Os critérios técnicos detalhados estão no [FDD](FDD.md#critérios-de-aceite-técnicos).
+- **Testes automatizados.** Cobrir o cadastro de webhooks, o histórico, o reenvio e a notificação disparada pela mudança de status, com testes ponta a ponta da integração, que já estão no plano ([09:46] Larissa). Como testar cada parte está nos [critérios de aceite técnicos do FDD](FDD.md#critérios-de-aceite-técnicos).
 - **Cenários de falha.** Simular sistema do cliente lento (mais de 10 segundos), fora do ar e voltando, e notificação repetida, cobrindo os cenários 2, 3 e 6 deste documento.
 - **Revisão de segurança.** Pelo menos dois dias úteis reservados para a Sofia revisar assinatura e geração de secret antes do deploy ([09:46] Sofia).
 - **Revisão do desenho.** Sessão com Bruno e Diego sobre o documento de design antes de começar a codar ([09:50] Larissa).

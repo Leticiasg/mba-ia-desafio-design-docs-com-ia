@@ -88,10 +88,8 @@ A contagem e a validação desta tabela estão no fim do arquivo e podem ser ref
 | RFC-IMP-01 | `docs/RFC.md` | Impacto | Tabela de outbox cresce sem limpeza nesta fase | TRANSCRICAO | [09:08] Diego |
 | RFC-IMP-02 | `docs/RFC.md` | Impacto | Clientes precisam deduplicar e validar a assinatura, com apoio do portal | TRANSCRICAO | [09:26] Marcos; [09:40] Marcos |
 | RFC-RISCO-01 | `docs/RFC.md` | Risco | Falha na outbox derruba a mudança de status (comportamento escolhido) | TRANSCRICAO | [09:40] Bruno; [09:46] Larissa |
-| RFC-RISCO-02 | `docs/RFC.md` | Risco | Cliente que não deduplica processa duas vezes | TRANSCRICAO | [09:26] Marcos |
-| RFC-RISCO-03 | `docs/RFC.md` | Risco | Vazamento de secret | TRANSCRICAO | [09:21] Sofia; [09:46] Sofia |
-| RFC-RISCO-04 | `docs/RFC.md` | Risco | Rajada de eventos para um cliente | TRANSCRICAO | [09:38] Diego; [09:39] Larissa |
-| RFC-RISCO-05 | `docs/RFC.md` | Risco | Ordem trocada com um segundo worker | TRANSCRICAO | [09:12] Diego; [09:13] Diego |
+| RFC-RISCO-02 | `docs/RFC.md` | Risco | Ordem trocada com um segundo worker | TRANSCRICAO | [09:12] Diego; [09:13] Diego |
+| RFC-RISCO-03 | `docs/RFC.md` | Risco | Tabelas da feature crescem sem limpeza nesta fase | TRANSCRICAO | [09:08] Diego |
 | RFC-PRAZO-01 | `docs/RFC.md` | Estimativa | Três sprints, com a revisão de segurança no fim | TRANSCRICAO | [09:46] Larissa; [09:47] Larissa |
 | ADR-001 | `docs/adrs/ADR-001-outbox-no-mysql.md` | Decisão | Outbox no MySQL, gravada na mesma transação do `changeStatus` | TRANSCRICAO | [09:06] Diego; [09:08] Larissa |
 | ADR-001-DEC-02 | `docs/adrs/ADR-001-outbox-no-mysql.md` | Decisão | Falha na inserção da outbox desfaz a transação inteira | TRANSCRICAO | [09:40] Bruno; [09:41] Diego |
@@ -202,10 +200,10 @@ Resultado de `bash work/validar-tracker.sh` sobre esta versão. O script confere
 
 | Indicador | Resultado | Exigido |
 | --- | --- | --- |
-| Linhas | 174 | — |
-| Fonte `TRANSCRICAO` com `[hh:mm] Nome` válido | 149 (85,6%) | ≥ 70% |
+| Linhas | 172 | — |
+| Fonte `TRANSCRICAO` com `[hh:mm] Nome` válido | 147 (85,5%) | ≥ 70% |
 | Fonte `CODIGO` com caminho real | 25 | ≥ 5 |
-| Itens identificáveis com linha no tracker | 139 de 139 (100%) | ≥ 80% |
+| Itens identificáveis com linha no tracker | 137 de 137 (100%) | ≥ 80% |
 
 | Categoria | Itens no documento | Linhas no tracker |
 | --- | --- | --- |
@@ -217,7 +215,7 @@ Resultado de `bash work/validar-tracker.sh` sobre esta versão. O script confere
 | PRD: riscos | 5 | 5 |
 | RFC: alternativas | 6 | 6 |
 | RFC: questões em aberto | 8 | 8 |
-| RFC: riscos técnicos | 5 | 5 |
+| RFC: riscos de arquitetura | 3 | 3 |
 | ADRs: decisões | 6 | 6 |
 | ADRs: alternativas não escolhidas | 13 | 13 |
 | FDD: contratos | 8 | 8 |

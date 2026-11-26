@@ -19,7 +19,7 @@ O OMS vai avisar os clientes B2B, por webhook, quando o status de um pedido dele
 
 ## Contexto e problema
 
-Três clientes B2B (Atlas Comercial, MaxDistribuição e Nova Cargo) pediram formalmente para ser avisados quando o status dos pedidos deles muda. Hoje eles consultam `GET /orders` de tempos em tempos, o que deixa a integração lenta e cara do lado deles. A Atlas disse que pode ir para um concorrente se isso não sair até o fim do trimestre ([09:00] Marcos) e pediu a entrega para o fim de novembro ([09:45] Marcos). Para os clientes, qualquer atraso abaixo de 10 segundos conta como tempo real ([09:02] Marcos).
+Os clientes B2B precisam saber em menos de 10 segundos que o status de um pedido mudou, e hoje só conseguem isso consultando `GET /orders` de tempos em tempos ([09:00] Marcos, [09:02] Marcos). Quem pediu a feature, as metas e o prazo estão no [PRD](PRD.md).
 
 O fluxo é só de saída: o OMS envia, os clientes recebem ([09:02] Marcos, [09:03] Sofia). O código atual não tem nenhum mecanismo de evento, fila ou notificação externa.
 
@@ -41,7 +41,7 @@ flowchart LR
 
 **Entrega.** Um processo separado da API, com entry point próprio, lê os eventos pendentes mais antigos a cada 2 segundos e faz as chamadas. O polling acrescenta até 2 segundos de atraso, dentro da meta de 10. Nesta fase roda um único worker, e a ordem dos eventos é garantida só por pedido. Ver [ADR-002](adrs/ADR-002-worker-separado-em-polling.md).
 
-**Falhas.** Sem resposta em 10 segundos, ou com erro, a chamada conta como falha. O worker tenta de novo em 1 minuto, 5 minutos, 30 minutos, 2 horas e 12 horas. Esgotadas as tentativas, o evento vai para uma tabela de DLQ, de onde só um ADMIN pode recolocá-lo na fila. Ver [ADR-003](adrs/ADR-003-retry-com-backoff-e-dlq.md).
+**Falhas.** Uma chamada que falha ou demora demais é retentada em intervalos crescentes, durante cerca de 15 horas. Esgotadas as tentativas, o evento vai para uma tabela de DLQ, de onde só um ADMIN pode recolocá-lo na fila. Ver [ADR-003](adrs/ADR-003-retry-com-backoff-e-dlq.md).
 
 **Segurança.** Cada endpoint cadastrado tem sua secret, gerada pela plataforma e rotacionável, com 24 horas de convivência entre a antiga e a nova. A URL precisa ser https. Ver [ADR-004](adrs/ADR-004-hmac-sha256-com-secret-por-endpoint.md).
 
@@ -91,15 +91,13 @@ Os pontos de implementação que também ficaram sem resposta (validação de ht
 
 **Para os clientes.** Eles precisam deduplicar pelo `X-Event-Id` e validar a assinatura. Marcos vai explicar os dois no portal de desenvolvedor ([09:26] Marcos, [09:40] Marcos).
 
-**Riscos técnicos:**
+**Riscos de arquitetura** (os riscos de produto estão no [PRD](PRD.md#riscos-e-mitigação) e os de implementação no [FDD](FDD.md#riscos-e-mitigação)):
 
 | Risco | Mitigação proposta |
 | --- | --- |
 | Inserção na outbox falhar e derrubar a mudança de status | É o comportamento escolhido: sem evento, sem mudança ([09:40] Bruno). A integração no `order.service` tem testes ponta a ponta previstos no plano ([09:46] Larissa) |
-| Cliente que não deduplica processar o mesmo evento duas vezes | Documentação destacada no portal ([09:26] Marcos) e `X-Event-Id` em todo envio |
-| Vazamento de secret | Secret por endpoint, rotação com 24 horas de convivência e revisão de segurança de pelo menos dois dias úteis antes do deploy ([09:21] Sofia, [09:46] Sofia) |
-| Rajada de eventos para um mesmo cliente | Sem limite de envio nesta fase; observar e decidir (questão 1) |
 | Ordem trocada se alguém subir um segundo worker | Rodar um worker só e tratar a escala como decisão nova (questão 2) |
+| Tabelas da feature crescerem sem limpeza | Arquivamento dos eventos entregues fica para outra entrega ([09:08] Diego); o volume entra no acompanhamento depois do lançamento |
 
 **Prazo.** Larissa estimou três sprints: outbox e DLQ (uma), worker e retry (uma), CRUD e histórico de entregas (meia), integração no `order.service` e testes ponta a ponta (meia), mais HMAC, schemas e validações, com a revisão de segurança da Sofia no fim ([09:46] Larissa, [09:47] Larissa).
 

@@ -71,7 +71,7 @@ tabela_cob=$(
   cobertura "PRD: riscos" "$(awk '/^## Riscos/,/^## Critérios/' docs/PRD.md | grep -cE '\| (Baixa|Média|Alta) \|')" "$(conta_trk 'PRD-RISCO-')"
   cobertura "RFC: alternativas" "$(awk '/^## Alternativas/,/^## Questões/' docs/RFC.md | grep -cE '^\| [A-Z]' | awk '{print $1-1}')" "$(conta_trk 'RFC-ALT-')"
   cobertura "RFC: questões em aberto" "$(awk '/^## Questões/,/^## Impacto/' docs/RFC.md | grep -cE '^[0-9]+\. ')" "$(conta_trk 'RFC-ABE-')"
-  cobertura "RFC: riscos técnicos" "$(awk '/Riscos técnicos/,/Prazo/' docs/RFC.md | grep -cE '^\| [A-Z]' | awk '{print $1-1}')" "$(conta_trk 'RFC-RISCO-')"
+  cobertura "RFC: riscos de arquitetura" "$(awk '/^\*\*Riscos de arquitetura/,/^\*\*Prazo/' docs/RFC.md | grep -cE '^\| [A-Z]' | awk '{print $1-1}')" "$(conta_trk 'RFC-RISCO-')"
   cobertura "ADRs: decisões" "$(ls docs/adrs/ADR-*.md | wc -l | tr -d ' ')" "$(conta_trk 'ADR-[0-9]{3} ')"
   cobertura "ADRs: alternativas não escolhidas" "$(for f in docs/adrs/ADR-*.md; do awk '/^## Alternativas/,/^## Decisão/' "$f" | grep -E '^[0-9]+\. \*\*' | grep -vc 'Escolhida'; done | awk '{s+=$1} END {print s}')" "$(conta_trk 'ADR-[0-9]{3}-ALT-')"
   cobertura "FDD: contratos" "$(awk '/^## Contratos públicos/,/^## Matriz/' docs/FDD.md | grep -cE '^### [0-9]+\.')" "$(conta_trk 'FDD-CONTRATO-0[1-8]')"

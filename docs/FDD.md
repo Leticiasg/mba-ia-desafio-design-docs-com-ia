@@ -44,18 +44,14 @@ As restrições técnicas que moldam o desenho:
 - alteração no `changeStatus` para chamar `publishWebhookEvent(tx, order, fromStatus, toStatus)` ([09:41] Bruno);
 - sete endpoints na API e o contrato da chamada de saída para o cliente.
 
-**Exclui:**
+**Exclui** (exclusões técnicas desta entrega; o que ficou fora do produto está no [PRD](PRD.md#escopo)):
 
 | Fora desta entrega | Situação na reunião | Fonte |
 | --- | --- | --- |
-| Webhooks de entrada (cliente enviando para o OMS) | Descartado | [09:02] Marcos |
-| Aviso por e-mail quando o webhook do cliente falha | Adiado para a próxima fase | [09:37] Larissa |
-| Painel visual para o cliente | Projeto separado do time de frontend | [09:40] Larissa |
 | Rate limiting de envio por cliente | Observar e decidir depois | [09:39] Larissa |
 | Mais de um worker em paralelo | Adiado; limitação de ordem documentada | [09:13] Diego, [09:13] Larissa |
 | Arquivamento de eventos entregues (cerca de 30 dias) | Fora do escopo da feature | [09:08] Diego |
 | Itens do pedido no payload | Descartado; o cliente consulta `GET /api/v1/orders/:id` | [09:43] Diego |
-| Restrição de role no CRUD de configuração | Adiado | [09:37] Sofia |
 
 ## Modelo de dados
 
@@ -560,15 +556,14 @@ Compatibilidade: nenhum endpoint existente muda de contrato. O `PATCH /api/v1/or
 
 ## Riscos e mitigação
 
+Riscos de implementação. Os de produto estão no [PRD](PRD.md#riscos-e-mitigação) e os de arquitetura no [RFC](RFC.md#impacto-e-riscos).
+
 | Risco | Impacto técnico | Mitigação |
 | --- | --- | --- |
-| Falha na outbox bloquear mudanças de status | Pedido não muda de status enquanto a inserção falhar | É o comportamento escolhido ([09:40] Bruno); critério de aceite 3 cobre; log de erro do `errorMiddleware` registra a causa |
 | Ordem por pedido quebrar com retentativas | Cliente recebe SHIPPED antes de PROCESSING de um pedido cujo evento anterior está esperando retry | Registrado como P-07 para a revisão; até lá, a garantia documentada é a da reunião: ordem por pedido só com worker único ([09:13] Larissa) |
 | Eventos presos em `PROCESSING` se o worker cair | Eventos param de ser enviados até alguém intervir | P-09; a métrica de idade do evento pendente mais antigo e o log `webhook_worker_stopped` ajudam a perceber |
 | Secret vazar em log | Atacante consegue assinar requisições falsas para aquele cliente | `redact` de `*.secret` e `*.previousSecret`; secret por endpoint e rotação ([09:21] Sofia); revisão de segurança antes do deploy ([09:46] Sofia) |
-| Outbox, entregas e DLQ crescerem sem limite | Consultas do worker mais lentas com o tempo | Índices em `status` e `createdAt` ([09:08] Diego); arquivamento fica para outra entrega ([09:08] Diego) |
-| Rajada de eventos para um mesmo cliente | Muitas chamadas seguidas para o mesmo endpoint | Sem limite nesta fase; observar pelas métricas de entrega e decidir depois ([09:39] Larissa) |
-| Cliente não deduplicar | Processa o mesmo evento duas vezes | `X-Event-Id` em todo envio e explicação no portal ([09:26] Marcos) |
+| Consultas do worker ficarem lentas com o volume das tabelas | Atraso maior que o polling de 2 segundos | Índices em `status` e `createdAt` ([09:08] Diego); arquivamento fica para outra entrega ([09:08] Diego) |
 
 ## Pendências para a revisão
 

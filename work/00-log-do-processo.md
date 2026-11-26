@@ -192,3 +192,12 @@ Prompts no README: o trecho do pedido de abertura e os prompts das etapas de ADR
 Atualizei `docs/adrs/README.md`: o exemplo de nome passou para o formato `ADR-NNN-titulo-em-kebab-case.md`, que é o dos arquivos, e o arquivo ganhou um índice dos seis ADRs.
 
 Revisão final: quatro menções a `src/worker.ts` e `src/modules/webhooks/` (no ADR-002 e no FDD) estavam sem a marca "(a criar)". Como o enunciado não aceita arquivo de código inexistente citado nos documentos, marquei todas.
+
+Revisão de altura entre os documentos, depois da revisão final: os scripts contavam seções e fontes, mas não pegavam conteúdo repetido. Comparando os documentos, achei quatro problemas e corrigi:
+
+- Riscos repetidos em PRD, RFC e FDD. Cada documento ficou com os da sua altura: PRD com os de produto e cliente, RFC com os de arquitetura (outbox bloqueando a mudança de status, ordem com um segundo worker, tabelas crescendo sem limpeza) e FDD com os de implementação. RFC e FDD apontam para os outros dois.
+- Detalhe de código no PRD: a estratégia de testes citava as ferramentas e um arquivo de teste, e uma dependência citava um arquivo de `src/`. Ficou só o que será validado, com link para o FDD.
+- As exclusões do FDD repetiam o fora de escopo do PRD. O FDD ficou só com as exclusões técnicas e um link para o PRD.
+- O contexto do RFC recontava o problema de produto. Ficou uma frase com link para o PRD, e a proposta passou a citar o retry como "intervalos crescentes por cerca de 15 horas", deixando os números no ADR-003 e no FDD.
+
+No tracker, saíram as três linhas de risco do RFC que deixaram de existir e entrou a de crescimento das tabelas. Resultado: 172 linhas, 85,5% com TRANSCRICAO, 25 com CODIGO, 137 de 137 itens cobertos.
